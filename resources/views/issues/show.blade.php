@@ -44,13 +44,19 @@
             </div>
             <div class="sm:col-span-2">
                 <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Tags</dt>
-                <dd class="mt-1 flex flex-wrap gap-2">
-                    @forelse ($issue->tags as $tag)
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium text-white"
-                              style="background-color: {{ $tag->color ?? '#6b7280' }}">{{ $tag->name }}</span>
-                    @empty
-                        <span class="text-sm text-gray-500">No tags.</span>
-                    @endforelse
+                <dd class="mt-1">
+                    <div id="tag-manager" data-issue-id="{{ $issue->id }}">
+                        <div id="current-tags" class="flex flex-wrap gap-2"></div>
+                        <div class="mt-3 flex items-center gap-2">
+                            <select id="tag-select"
+                                    class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Select a tag</option>
+                            </select>
+                            <button type="button" id="attach-tag"
+                                    class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">Add tag</button>
+                        </div>
+                    </div>
+                    <script type="application/json" id="current-tags-data">@json($issue->tags->map(fn ($tag) => ['id' => $tag->id, 'name' => $tag->name, 'color' => $tag->color]))</script>
                 </dd>
             </div>
             <div class="sm:col-span-2">
@@ -62,9 +68,35 @@
 
     <section>
         <h2 class="mb-4 text-lg font-semibold">Comments</h2>
-        <div id="comments" data-issue-id="{{ $issue->id }}"
-             class="rounded-lg bg-white p-6 text-sm text-gray-500 shadow-sm ring-1 ring-gray-200">
-            Loading comments...
+
+        <div id="comments" data-issue-id="{{ $issue->id }}" class="space-y-6">
+            <form id="comment-form" class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200">
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label for="author_name" class="block text-sm font-medium text-gray-700">Your name</label>
+                        <input type="text" id="author_name" name="author_name"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <p class="mt-1 text-sm text-red-600" data-error="author_name"></p>
+                    </div>
+                    <div>
+                        <label for="body" class="block text-sm font-medium text-gray-700">Comment</label>
+                        <textarea id="body" name="body" rows="3"
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                        <p class="mt-1 text-sm text-red-600" data-error="body"></p>
+                    </div>
+                    <div>
+                        <button type="submit"
+                                class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Add comment</button>
+                    </div>
+                </div>
+            </form>
+
+            <div id="comment-list" class="rounded-lg bg-white px-6 shadow-sm ring-1 ring-gray-200"></div>
+
+            <div class="text-center">
+                <button type="button" id="load-more" hidden
+                        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Load more</button>
+            </div>
         </div>
     </section>
 @endsection
