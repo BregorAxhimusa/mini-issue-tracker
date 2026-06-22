@@ -35,4 +35,9 @@ class Issue extends Model
     {
         return $this->belongsToMany(Tag::class);
     }
+
+    public function assignees(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
+    }
 }

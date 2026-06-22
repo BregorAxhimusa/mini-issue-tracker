@@ -60,6 +60,23 @@
                 </dd>
             </div>
             <div class="sm:col-span-2">
+                <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Assignees</dt>
+                <dd class="mt-1">
+                    <div id="assignee-manager" data-issue-id="{{ $issue->id }}">
+                        <div id="current-assignees" class="flex flex-wrap gap-2"></div>
+                        <div class="mt-3 flex items-center gap-2">
+                            <select id="assignee-select"
+                                    class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Select a member</option>
+                            </select>
+                            <button type="button" id="attach-assignee"
+                                    class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">Add member</button>
+                        </div>
+                    </div>
+                    <script type="application/json" id="current-assignees-data">@json($issue->assignees->map(fn ($user) => ['id' => $user->id, 'name' => $user->name]))</script>
+                </dd>
+            </div>
+            <div class="sm:col-span-2">
                 <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Description</dt>
                 <dd class="mt-1 whitespace-pre-line text-gray-800">{{ $issue->description ?: 'No description.' }}</dd>
             </div>

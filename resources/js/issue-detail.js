@@ -116,6 +116,98 @@ function initTags() {
         });
 }
 
+function initAssignees() {
+    const manager = document.getElementById('assignee-manager');
+
+    if (!manager) {
+        return;
+    }
+
+    const issueId = manager.dataset.issueId;
+    const currentContainer = document.getElementById('current-assignees');
+    const select = document.getElementById('assignee-select');
+    const attachButton = document.getElementById('attach-assignee');
+
+    let allUsers = [];
+    let currentUsers = JSON.parse(document.getElementById('current-assignees-data')?.textContent || '[]');
+
+    function renderOptions() {
+        const assigned = new Set(currentUsers.map((user) => user.id));
+        select.innerHTML = '<option value="">Select a member</option>';
+
+        allUsers
+            .filter((user) => !assigned.has(user.id))
+            .forEach((user) => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = user.name;
+                select.appendChild(option);
+            });
+    }
+
+    function renderCurrent() {
+        currentContainer.innerHTML = '';
+
+        if (currentUsers.length === 0) {
+            const empty = document.createElement('span');
+            empty.className = 'text-sm text-gray-500';
+            empty.textContent = 'No assignees.';
+            currentContainer.appendChild(empty);
+        } else {
+            currentUsers.forEach((user) => {
+                const chip = document.createElement('span');
+                chip.className = 'inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700';
+                chip.textContent = user.name;
+
+                const remove = document.createElement('button');
+                remove.type = 'button';
+                remove.className = 'ml-1 leading-none text-gray-500 hover:text-gray-800';
+                remove.textContent = '×';
+                remove.setAttribute('aria-label', `Remove ${user.name}`);
+                remove.addEventListener('click', () => detachUser(user.id));
+
+                chip.appendChild(remove);
+                currentContainer.appendChild(chip);
+            });
+        }
+
+        renderOptions();
+    }
+
+    function attachUser(userId) {
+        request(`/issues/${issueId}/users/${userId}`, { method: 'POST' })
+            .then((response) => response.json())
+            .then((users) => {
+                currentUsers = users;
+                renderCurrent();
+            });
+    }
+
+    function detachUser(userId) {
+        request(`/issues/${issueId}/users/${userId}`, { method: 'DELETE' })
+            .then((response) => response.json())
+            .then((users) => {
+                currentUsers = users;
+                renderCurrent();
+            });
+    }
+
+    attachButton.addEventListener('click', () => {
+        const userId = select.value;
+
+        if (userId) {
+            attachUser(userId);
+        }
+    });
+
+    request('/users')
+        .then((response) => response.json())
+        .then((users) => {
+            allUsers = users;
+            renderCurrent();
+        });
+}
+
 function initComments() {
     const container = document.getElementById('comments');
 
@@ -236,5 +328,6 @@ function initComments() {
 
 document.addEventListener('DOMContentLoaded', () => {
     initTags();
+    initAssignees();
     initComments();
 });
