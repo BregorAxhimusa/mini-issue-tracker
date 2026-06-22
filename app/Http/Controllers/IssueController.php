@@ -14,6 +14,13 @@ class IssueController extends Controller
     public function index(Request $request)
     {
         $issues = Issue::with(['project', 'tags'])
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->input('search');
+                $query->where(function ($inner) use ($search) {
+                    $inner->where('title', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->input('status')))
             ->when($request->filled('priority'), fn ($query) => $query->where('priority', $request->input('priority')))
             ->when($request->filled('tag_id'), function ($query) use ($request) {
@@ -22,6 +29,10 @@ class IssueController extends Controller
             ->latest()
             ->paginate(15)
             ->withQueryString();
+
+        if ($request->ajax()) {
+            return view('issues.partials.list', compact('issues'));
+        }
 
         $tags = Tag::orderBy('name')->get();
 
