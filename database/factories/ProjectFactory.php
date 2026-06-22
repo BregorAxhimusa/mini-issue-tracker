@@ -12,14 +12,17 @@ class ProjectFactory extends Factory
 {
     public function definition(): array
     {
-        $startDate = fake()->optional()->dateTimeBetween('-2 months', '+1 month');
+        $startDate = fake()->dateTimeBetween('-3 months', 'now');
+
+        $earliestDeadline = max((clone $startDate)->modify('+1 month'), new \DateTime());
+        $latestDeadline = (clone $startDate)->modify('+6 months');
 
         return [
             'user_id' => User::factory(),
             'name' => fake()->unique()->catchPhrase(),
             'description' => fake()->optional()->paragraph(),
             'start_date' => $startDate,
-            'deadline' => $startDate ? fake()->dateTimeBetween($startDate, '+3 months') : null,
+            'deadline' => fake()->dateTimeBetween($earliestDeadline, $latestDeadline),
         ];
     }
 }
