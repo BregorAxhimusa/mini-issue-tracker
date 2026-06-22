@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/projects');
 
+Route::get('dashboard', fn () => redirect()->route('projects.index'))
+    ->middleware('auth')
+    ->name('dashboard');
+
 Route::resource('projects', ProjectController::class);
 Route::resource('issues', IssueController::class);
 
@@ -24,3 +28,5 @@ Route::delete('issues/{issue}/users/{user}', [UserController::class, 'detach'])-
 
 Route::get('issues/{issue}/comments', [CommentController::class, 'index'])->name('issues.comments.index');
 Route::post('issues/{issue}/comments', [CommentController::class, 'store'])->name('issues.comments.store');
+
+require __DIR__.'/auth.php';

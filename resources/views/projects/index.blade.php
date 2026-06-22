@@ -5,10 +5,12 @@
 @section('content')
     <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-semibold">Projects</h1>
-        <a href="{{ route('projects.create') }}"
-           class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-            Create project
-        </a>
+        @auth
+            <a href="{{ route('projects.create') }}"
+               class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                Create project
+            </a>
+        @endauth
     </div>
 
     <div class="overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-gray-200">
@@ -34,14 +36,18 @@
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center justify-end gap-3">
-                                <a href="{{ route('projects.edit', $project) }}"
-                                   class="text-gray-600 hover:text-gray-900">Edit</a>
-                                <form method="POST" action="{{ route('projects.destroy', $project) }}"
-                                      onsubmit="return confirm('Delete this project and all of its issues?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-800">Delete</button>
-                                </form>
+                                @can('update', $project)
+                                    <a href="{{ route('projects.edit', $project) }}"
+                                       class="text-gray-600 hover:text-gray-900">Edit</a>
+                                @endcan
+                                @can('delete', $project)
+                                    <form method="POST" action="{{ route('projects.destroy', $project) }}"
+                                          onsubmit="return confirm('Delete this project and all of its issues?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-800">Delete</button>
+                                    </form>
+                                @endcan
                             </div>
                         </td>
                     </tr>

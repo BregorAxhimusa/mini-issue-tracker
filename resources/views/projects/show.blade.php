@@ -9,15 +9,19 @@
             <h1 class="mt-2 text-2xl font-semibold">{{ $project->name }}</h1>
         </div>
         <div class="flex items-center gap-3">
-            <a href="{{ route('projects.edit', $project) }}"
-               class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Edit</a>
-            <form method="POST" action="{{ route('projects.destroy', $project) }}"
-                  onsubmit="return confirm('Delete this project and all of its issues?')">
-                @csrf
-                @method('DELETE')
-                <button type="submit"
-                        class="rounded-md border border-red-300 bg-white px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50">Delete</button>
-            </form>
+            @can('update', $project)
+                <a href="{{ route('projects.edit', $project) }}"
+                   class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Edit</a>
+            @endcan
+            @can('delete', $project)
+                <form method="POST" action="{{ route('projects.destroy', $project) }}"
+                      onsubmit="return confirm('Delete this project and all of its issues?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit"
+                            class="rounded-md border border-red-300 bg-white px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50">Delete</button>
+                </form>
+            @endcan
         </div>
     </div>
 
@@ -34,6 +38,10 @@
             <div>
                 <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Deadline</dt>
                 <dd class="mt-1 text-gray-800">{{ $project->deadline ? $project->deadline->format('M j, Y') : 'Not set' }}</dd>
+            </div>
+            <div>
+                <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Owner</dt>
+                <dd class="mt-1 text-gray-800">{{ $project->owner?->name ?? 'Unassigned' }}</dd>
             </div>
         </dl>
     </div>

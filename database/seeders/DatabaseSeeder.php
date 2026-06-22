@@ -16,21 +16,30 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Demo accounts (password for every seeded user is "password"):
+        //   alice@example.com / password
+        //   bob@example.com   / password
+        $alice = User::factory()->create([
+            'name' => 'Alice Owner',
+            'email' => 'alice@example.com',
         ]);
 
-        $users = User::factory(5)->create();
+        $bob = User::factory()->create([
+            'name' => 'Bob Owner',
+            'email' => 'bob@example.com',
+        ]);
+
+        $owners = collect([$alice, $bob]);
+        $members = $owners->merge(User::factory(4)->create());
         $tags = Tag::factory(8)->create();
 
-        Project::factory(5)->create()->each(function (Project $project) use ($tags, $users) {
-            $issues = Issue::factory(rand(4, 8))->for($project)->create();
+        collect(range(1, 5))->each(function () use ($owners, $members, $tags) {
+            $project = Project::factory()->for($owners->random(), 'owner')->create();
 
-            $issues->each(function (Issue $issue) use ($tags, $users) {
+            Issue::factory(rand(4, 8))->for($project)->create()->each(function (Issue $issue) use ($tags, $members) {
                 $issue->tags()->attach($tags->random(rand(1, 3))->pluck('id'));
 
-                $assignees = $users->random(rand(0, 2));
+                $assignees = $members->random(rand(0, 2));
                 if ($assignees->isNotEmpty()) {
                     $issue->assignees()->attach($assignees->pluck('id'));
                 }
