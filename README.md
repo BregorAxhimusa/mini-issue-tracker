@@ -16,7 +16,7 @@ A small issue tracker built with Laravel and Blade: projects, issues, tags, assi
 
 ## Tech stack
 
-- PHP 8.3+, Laravel 13, Blade
+- PHP 8.4+, Laravel 13, Blade
 - Laravel Breeze for authentication
 - Tailwind CSS 4 built with Vite
 - Plain JavaScript `fetch` for the inline parts, no front-end framework
@@ -39,7 +39,7 @@ Create issue form:
 
 ## Local setup
 
-Requirements: PHP 8.3 or newer, Composer, Node.js with npm, and MySQL 8 or SQLite.
+Requirements: PHP 8.4 or newer (the locked Symfony 8 packages need 8.4.1), Composer, Node.js with npm, and MySQL 8 or SQLite.
 
 ```bash
 composer install
