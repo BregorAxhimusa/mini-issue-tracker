@@ -1,66 +1,68 @@
 # Mini Issue Tracker
 
-A small issue tracker built with Laravel and Blade. You can create projects, log issues against them, tag and assign issues, and discuss them in comments. The UI is server-rendered with Tailwind CSS, and the interactive parts (tags, assignees, comments, and issue search) use plain `fetch` requests with no JavaScript framework.
+[![tests](https://github.com/BregorAxhimusa/mini-issue-tracker/actions/workflows/tests.yml/badge.svg)](https://github.com/BregorAxhimusa/mini-issue-tracker/actions/workflows/tests.yml)
 
-## Requirements
+A small issue tracker built with Laravel and Blade: projects, issues, tags, assignees and comments, with server-rendered pages and a few inline interactions done with plain `fetch`.
 
-- PHP 8.3 or newer
-- Composer
-- MySQL 8.0 or newer
-- Node.js 20 or newer (with npm)
+## Features
 
-## Setup
+- **Projects:** create, view, edit and delete, each with a name, description, start date and deadline. Only a project's owner can edit or delete it, enforced with a policy.
+- **Issues:** create, view, edit and delete, with a status (open, in progress, closed), a priority (low, medium, high) and an optional due date.
+- **Filtering and search:** filter the issue list by status, priority and tag, combined with a debounced text search over titles and descriptions. Results are paginated, 15 per page.
+- **Tags:** attach and detach tags on an issue without a page reload.
+- **Assignees:** add and remove multiple members per issue with the same inline interface.
+- **Comments:** loaded on demand with pagination, new comments added inline, validation errors shown on the form.
+- **Authentication:** Laravel Breeze (login, registration, password reset).
 
-1. Install PHP dependencies:
+## Tech stack
 
-   ```
-   composer install
-   ```
+- PHP 8.3+, Laravel 13, Blade
+- Laravel Breeze for authentication
+- Tailwind CSS 4 built with Vite
+- Plain JavaScript `fetch` for the inline parts, no front-end framework
+- MySQL or SQLite; the tests run on SQLite in memory
+- PHPUnit, run on GitHub Actions
 
-2. Copy the environment file and generate an app key:
+## Screenshots
 
-   ```
-   cp .env.example .env
-   php artisan key:generate
-   ```
+Issue list with filters:
 
-3. Create a MySQL database named `issue_tracker` (or whatever you prefer) and set the connection details in `.env`:
+![Issue list](docs/screenshots/issues-list.png)
 
-   ```
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=issue_tracker
-   DB_USERNAME=root
-   DB_PASSWORD=
-   ```
+Issue detail with tags, assignees and comments:
 
-4. Run the migrations and seed the demo data:
+![Issue detail](docs/screenshots/issue-detail.png)
 
-   ```
-   php artisan migrate:fresh --seed
-   ```
+Create issue form:
 
-5. Install the front-end dependencies and build the assets:
+![Issue form](docs/screenshots/issue-form.png)
 
-   ```
-   npm install
-   npm run build
-   ```
+## Local setup
 
-   During development you can run `npm run dev` instead to get hot reloading.
+Requirements: PHP 8.3 or newer, Composer, Node.js with npm, and MySQL 8 or SQLite.
 
-6. Start the application:
+```bash
+composer install
+npm ci
+npm run build
+cp .env.example .env
+php artisan key:generate
+```
 
-   ```
-   php artisan serve
-   ```
+`.env.example` points at a MySQL database named `issue_tracker`. To use SQLite instead, set `DB_CONNECTION=sqlite` in `.env`, remove the other `DB_*` lines and create the file with `touch database/database.sqlite`.
 
-   The app is then available at http://127.0.0.1:8000 and the home page redirects to the projects list.
+Then create the tables, seed the demo data and start the app:
 
-## Demo accounts
+```bash
+php artisan migrate --seed
+php artisan serve
+```
 
-The seeder creates two project owners. The password for every seeded user is `password`.
+The app runs at http://127.0.0.1:8000 and the home page redirects to the projects list. Use `npm run dev` instead of `npm run build` for hot reloading.
+
+## Demo login
+
+The seeder creates two project owners, plus extra members, tags, projects and issues with comments. Every seeded user has the password `password`.
 
 | Email | Password |
 | --- | --- |
@@ -69,22 +71,15 @@ The seeder creates two project owners. The password for every seeded user is `pa
 
 You can also register a new account from the login page.
 
-## Features
+## Running tests
 
-- Projects: create, view, edit, and delete, each with a name, description, start date, and deadline.
-- Issues: create, view, edit, and delete, with a status (open, in progress, closed), a priority (low, medium, high), and an optional due date.
-- Issue filters: filter the issue list by status, priority, and tag.
-- Tags: attach and detach tags on an issue without a page reload.
-- Comments: paginated comments loaded on demand, with new comments added inline and validation errors shown on the form.
+```bash
+npm run build
+php artisan test
+```
 
-### Bonuses implemented
+The views load the Vite manifest, so the assets must be built first. PHPUnit uses SQLite in memory, so no database setup is needed. The suite covers the Breeze authentication flows. The same steps run on every push in [`.github/workflows/tests.yml`](.github/workflows/tests.yml).
 
-- Authentication with Laravel Breeze (login and registration).
-- Authorization: only a project's owner can edit or delete it, enforced with a policy.
-- Multiple assignees (members) per issue, managed with the same inline tag-style interface.
-- Debounced text search over issue titles and descriptions that combines with the other filters.
+## License
 
-## Notes
-
-- Status and priority are stored as plain strings; the allowed values are enforced by request validation rather than at the database level.
-- All the AJAX endpoints return JSON (or an HTML fragment for the issue search) and expect the CSRF token, which is read from the page's meta tag.
+[MIT](LICENSE)
